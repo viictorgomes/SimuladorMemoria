@@ -170,7 +170,7 @@ namespace SimuladorMemoria
                 int indexConjuntoDestino = (conjuntoDestino * nPos); // Obter o indice em que o conjunto começa
                 int indiceDoElementoNoConjunto = indexConjuntoDestino + j; // Indice do elemento dentro do conjunto
 
-                if (indiceDoElementoNoConjunto > MemoriaCache.Count) 
+                if (indiceDoElementoNoConjunto > MemoriaCache.Count)
                     throw new Exception("Overflow: IndiceDoElementoNoConjunto > MemoriaCache.Count");
 
                 if (string.IsNullOrEmpty(MemoriaCache[indiceDoElementoNoConjunto].Bloco)) // Se o indice do elemento dentro do conjunto estiver vazio, armazena o bloco no indice
@@ -183,18 +183,18 @@ namespace SimuladorMemoria
 
             if (blocosVazios != null)
             {
-                var blocosVaziosShuffle = blocosVazios.OrderBy(a => random.Next()).ToList();    // cria uma nova lista e popula essa lista com os elementos de blocoVazios de forma aleatoria
-                int indiceAleatorioDoElementoNoConjunto = blocosVaziosShuffle.First();              
+                var blocosVaziosShuffle = blocosVazios.OrderBy(a => random.Next()).ToList();    // Cria uma nova lista e popula essa lista com os elementos de blocoVazios de forma aleatoria
+                int indiceAleatorioDoElementoNoConjunto = blocosVaziosShuffle.First();
 
                 MemoriaCache[indiceAleatorioDoElementoNoConjunto] = bloco;
                 linhaSelecionada = indiceAleatorioDoElementoNoConjunto;
 
-                Adicionado = true; //se o bloco for armazenado, não há necessidade de algoritmo de substituição
+                Adicionado = true; // Se o bloco for armazenado, não há necessidade de algoritmo de substituição
 
-                blocosVazios.Remove(indiceAleatorioDoElementoNoConjunto); //remover indice do bloco vazio utilizado, para este não estar mais incluído nos blocos vazios nas proximas buscas
+                blocosVazios.Remove(indiceAleatorioDoElementoNoConjunto); // Remover indice do bloco vazio utilizado, para este não estar mais incluído nos blocos vazios nas proximas buscas
             }
 
-            if (!Adicionado) // so o bloco não tiver sido armazenado anteriormente, quer dizer que o conjunto nao possui indices vazios, então há necessidade de algoritmo de substituição
+            if (!Adicionado) // Se o bloco não tiver sido armazenado anteriormente, o conjunto nao possui indices vazios, então há necessidade de algoritmo de substituição
             {
                 switch (algoritmo)
                 {
@@ -289,7 +289,7 @@ namespace SimuladorMemoria
             dgv_Blocos.DataSource = null;
         }
 
-        private string GetRandom(int tamanho)
+        private string GerarDadoAleatorio(int tamanho)
         {
             //gera bloco aleatorio
             var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -300,17 +300,18 @@ namespace SimuladorMemoria
             return result;
         }
 
-        private int GetIndexFromDGVValue(int SearchForThis, DataGridView dgv)
+        // Metodo para obter um indice de dado em uma gridview a partir da tag de um bloco
+        private int ObterIndicePorTag(int tag, DataGridView dgv)
         {
             return (dgv.Rows.Cast<DataGridViewRow>()
-                                   .Where(r => Convert.ToInt32(r.Cells[0].Value) == SearchForThis)
+                                   .Where(r => Convert.ToInt32(r.Cells[0].Value) == tag)
                                    .Select(r => r.Index)).First();
         }
 
         private void PropriedadeGrid(string algoritmo = "", int tecnica = 0)
         {
             //Método feito para realizar alinhamento e customização das colunas
-            //seleciona tamanho e colunas a serem apresentadas de acordo com a tecnica e algoritmo
+            //seleciona o tamanho e quais colunas a serem apresentadas de acordo com a tecnica e algoritmo
             dgv_RAM.Columns[0].Width = 30;
             dgv_RAM.Columns[1].Width = 180;
             dgv_RAM.Columns[2].Width = 70;
@@ -353,12 +354,12 @@ namespace SimuladorMemoria
                 {
                     int nPos = Convert.ToInt32(txtbox_nPos.Text);
 
-                    if(linha % nPos == 0) // Alterar a cor ao iniciar um conjunto
+                    if (linha % nPos == 0) // Alterar a cor para iniciar um conjunto
                     {
                         colorir = !colorir;
                     }
 
-                    if(colorir)
+                    if (colorir)
                         row.DefaultCellStyle.BackColor = Color.LightGray;
                     else
                         row.DefaultCellStyle.BackColor = Color.White;
@@ -368,22 +369,27 @@ namespace SimuladorMemoria
             }
         }
 
-        private bool ExistEqual(Cache cache)
+        private bool CachePossuiDado(Cache cache)
         {
-            //Verifica se a ram ja foi carregada na cache, e caso positivo, altera o contador e hora usada
-            var existEqual = MemoriaCache.Where(d => d.Tag == cache.Tag).FirstOrDefault();
-            if (existEqual != null)
+            //Verifica se Memoria Cache já possui o dado recebido pelo parametro(com base na tag), e caso positivo, altera o contador e hora usada
+            var dadoJaExistenteNaCache = MemoriaCache.Where(d => d.Tag == cache.Tag).FirstOrDefault();
+
+            if (dadoJaExistenteNaCache != null) // Se encontrar o dado recebido por parametro, atualizar o bloco e selecionar a linha do bloco
             {
-                existEqual.HoraUsada = DateTime.Now;
-                existEqual.Contador++;
+                dadoJaExistenteNaCache.HoraUsada = DateTime.Now;
+                dadoJaExistenteNaCache.Contador++;
                 dgv_Cache.DataSource = null;
                 dgv_Cache.DataSource = MemoriaCache;
                 dgv_Cache.Focus();
+
                 PropriedadeGrid(GetAlgoritmo(), GetTecnica());
-                dgv_Cache.Rows[GetIndexFromDGVValue(Convert.ToInt32(existEqual.Tag), dgv_Cache)].Selected = true;
+
+                dgv_Cache.Rows[ObterIndicePorTag(Convert.ToInt32(dadoJaExistenteNaCache.Tag), dgv_Cache)].Selected = true;
                 return true;
             }
+
             PropriedadeGrid(GetAlgoritmo(), GetTecnica());
+
             return false;
         }
 
@@ -416,6 +422,18 @@ namespace SimuladorMemoria
             }
             return tecnica;
         }
+
+        private void selecionarLinhaRAM(int linha)
+        {
+            int linhaParaSelecionar = 0;
+
+            if (dgv_RAM.DataSource != null && (linha > 0 && linha <= Convert.ToInt32(dgv_RAM.Rows[dgv_RAM.Rows.Count - 1].Cells[0].Value)))
+            {
+                linhaParaSelecionar = linha;
+
+                dgv_RAM.Rows[linhaParaSelecionar].Selected = true;
+            }
+        }
         #endregion
 
         #region  --- Clique ---
@@ -428,34 +446,34 @@ namespace SimuladorMemoria
             int ram = Convert.ToInt32(txtbox_RAM.Text);
             int index = cb_RAM.SelectedIndex;
 
-            double qtdRAM = index == 0 ? (ram / bloco) : (ram * Math.Pow(2, (index * 10)) / bloco);  //
-            int qtdCache = Convert.ToInt32(txtbox_Cache.Text);                                       //
-                                                                                                     //
+            double qtdRAM = index == 0 ? (ram / bloco) : (ram * Math.Pow(2, (index * 10)) / bloco);  // Conversão das entradas de dados (Bytes/KBytes..)
+            int qtdCache = Convert.ToInt32(txtbox_Cache.Text);
+
             for (int i = 0; i < qtdRAM; i++)                                                         //
             {                                                                                        //
-                MemoriaRAM.Add(new RAM()                                                             //
+                MemoriaRAM.Add(new RAM()                                                             //  
                 {                                                                                    //
                     Bloco = i,                                                                       //
-                    Dado = GetRandom(bloco),                                                         // Cria o grid
-                    Endereço = i * bloco                                                             //
+                    Dado = GerarDadoAleatorio(bloco),                                                         // 
+                    Endereço = i * bloco                                                             //  Criação das Memoria RAM e Cache vazias
                 });                                                                                  //
             }                                                                                        //
                                                                                                      //
             for (int i = 0; i < qtdCache; i++)                                                       //
             {                                                                                        //
                 MemoriaCache.Add(new Cache());                                                       //
-            }         
+            }                                                                                        //
 
             dgv_RAM.DataSource = MemoriaRAM;
             dgv_Cache.DataSource = MemoriaCache;
 
-            PropriedadeGrid(GetAlgoritmo(), GetTecnica());
+            PropriedadeGrid(GetAlgoritmo(), GetTecnica());     // Aplicar customização dos datagridview's de acordo com tipo de algoritmo ou técnica
 
             txtbox_Acessar.Focus();
 
-            if (!descer)
+            if (!AcessarBlocos)  // Alterar visibilidade do campo de acessar blocos, iniciando animação da posição vertical                                
             {
-                descer = true;
+                AcessarBlocos = true;
                 Y_atual = 85;
                 t_slide.Start();
             }
@@ -471,22 +489,42 @@ namespace SimuladorMemoria
                 return;
             }
 
-            //verifica se o bloco a ser carregado existe
-            if (Convert.ToInt32(txtbox_Acessar.Text) > Convert.ToInt32(dgv_RAM.Rows[dgv_RAM.RowCount - 1].Cells[0].Value))
-            {
-                MetroMessageBox.Show(this, "Tentativa de carregar bloco não existente", "Impossível carregar o(s) bloco(s)", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtbox_RAM.Focus();
-                return;
-            }
-
             string[] numeros = txtbox_Acessar.Text.Split(',');
 
+            List<string> falhas = new List<string>();
             foreach (var numero in numeros)
             {
-                if (!String.IsNullOrEmpty(numero) && Convert.ToInt32(numero) < (MemoriaRAM.Count))
+                if (string.IsNullOrWhiteSpace(numero))
+                    continue;
+
+                if (Convert.ToInt32(numero) < (MemoriaRAM.Count))
                 {
+
                     Blocos.Add(numero.Trim());
                 }
+                else
+                {
+                    falhas.Add(numero.Trim());
+                }
+            }
+
+            if (falhas.Count > 0)
+            {
+                StringBuilder sb = new StringBuilder();
+                var plural = falhas.Count > 1 ? "s" : "";
+                sb.Append($"Falha ao carregar bloco{plural} ");
+
+                foreach (var num in falhas)
+                {
+                    sb.Append(num + ",");
+                }
+
+                var msgStr = sb.ToString();
+                var msg = msgStr.Substring(0, msgStr.Length - 1);
+                //MessageBox.Show(final);
+
+                MetroMessageBox.Show(this, msg, $"Tentativa de carregar bloco{plural} não existente{plural}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtbox_RAM.Focus();
             }
 
             var blocos = (from i in Blocos select new { Value = i }).ToArray();
@@ -496,6 +534,9 @@ namespace SimuladorMemoria
             dgv_Blocos.Focus();
 
             txtbox_Acessar.Text = null;
+
+            if (blocos.Length > 0)
+                selecionarLinhaRAM(Convert.ToInt32(blocos.FirstOrDefault().Value));
         }
 
         private void btn_CarregarTodos_Click(object sender, EventArgs e)
@@ -526,16 +567,15 @@ namespace SimuladorMemoria
                 return;
             }
 
-            var celula = Blocos[dgv_Blocos.CurrentCell.RowIndex].ToString();
+            var tag = Blocos[dgv_Blocos.CurrentCell.RowIndex].ToString();
 
-
-            Blocos.Remove(celula);
+            Blocos.Remove(tag);
 
             var blocos = (from i in Blocos select new { Value = i }).ToArray();
             dgv_Blocos.DataSource = null;
             dgv_Blocos.DataSource = blocos;
 
-            dgv_RAM.Rows[GetIndexFromDGVValue(Convert.ToInt32(celula), dgv_RAM)].Selected = true;
+            dgv_RAM.Rows[ObterIndicePorTag(Convert.ToInt32(tag), dgv_RAM)].Selected = true;
 
             var temp = new RAM()
             {
@@ -555,11 +595,12 @@ namespace SimuladorMemoria
 
             // Histórico de acessos
             StringBuilder str = new StringBuilder();
-            str.Append($" - {celula}{label_Historico.Text}");
+            str.Append($" - {tag}{label_Historico.Text}");
             label_Historico.Text = str.ToString();
 
             // Verifica se o bloco a ser carergado já está armazenado na cache
-            if (ExistEqual(cache))
+            // e caso já exista, atualiza os valores de contagem, horario acessado etc e da return por não ter necessidade de aplicar técnica
+            if (CachePossuiDado(cache))
             {
                 label_Check.ForeColor = System.Drawing.Color.Red;
                 Notificar("HIT");
@@ -621,17 +662,11 @@ namespace SimuladorMemoria
 
             if (cb_Tecnica.SelectedIndex == Tecnica.AssociativaConjuntoNPos)
             {
-                //txtbox_Cache.Enabled = false;
-                //txtbox_Cache.Text = "32";
-
                 txtbox_nPos.Visible = true;
                 lbl_nPos.Visible = true;
             }
             else
             {
-                //txtbox_Cache.Enabled = true;
-                //txtbox_Cache.Text = "";
-
                 txtbox_nPos.Visible = false;
                 lbl_nPos.Visible = false;
             }
@@ -643,9 +678,9 @@ namespace SimuladorMemoria
 
             txtbox_RAM.Focus();
 
-            if (descer)
+            if (AcessarBlocos)
             {
-                descer = false;
+                AcessarBlocos = false;
                 Y_atual = 142;
                 t_slide.Start();
             }
@@ -653,15 +688,7 @@ namespace SimuladorMemoria
 
         private void dgv_Blocos_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            int linhaParaSelecionar = 0;
-
-
-            if (dgv_RAM.DataSource != null && dgv_Blocos.Rows[e.RowIndex].Cells[0].Value != null)
-            {
-                linhaParaSelecionar = Convert.ToInt32(dgv_Blocos.Rows[e.RowIndex].Cells[0].Value);
-
-                dgv_RAM.Rows[linhaParaSelecionar].Selected = true;
-            }
+            selecionarLinhaRAM(Convert.ToInt32(dgv_Blocos.Rows[e.RowIndex].Cells[0].Value));
         }
 
         private void btn_LimparBlocos_Click(object sender, EventArgs e)
@@ -672,11 +699,11 @@ namespace SimuladorMemoria
         #endregion
 
         #region --- Animações ---
-        bool descer;
+        bool AcessarBlocos;
         int Y_atual;
         private void t_slide_Tick(object sender, EventArgs e)
         {
-            if (descer)
+            if (AcessarBlocos)
             {
                 Y_atual += 2;
                 if (Y_atual <= 142)
@@ -722,6 +749,6 @@ namespace SimuladorMemoria
                 txtbox_nPos.Text = "N";
         }
         #endregion
-       
+
     }
 }
