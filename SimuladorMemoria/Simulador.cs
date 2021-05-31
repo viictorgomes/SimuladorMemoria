@@ -181,7 +181,7 @@ namespace SimuladorMemoria
                 cacheEmUso[indiceDoElementoNoConjunto] = MemoriaCache[indiceDoElementoNoConjunto]; // Armazena dados que estão em uso na cache do conjunto destino
             }
 
-            if (blocosVazios != null)
+            if (blocosVazios.Count != 0)
             {
                 var blocosVaziosShuffle = blocosVazios.OrderBy(a => random.Next()).ToList();    // Cria uma nova lista e popula essa lista com os elementos de blocoVazios de forma aleatoria
                 int indiceAleatorioDoElementoNoConjunto = blocosVaziosShuffle.First();
@@ -454,7 +454,7 @@ namespace SimuladorMemoria
                 MemoriaRAM.Add(new RAM()                                                             //  
                 {                                                                                    //
                     Bloco = i,                                                                       //
-                    Dado = GerarDadoAleatorio(bloco),                                                         // 
+                    Dado = GerarDadoAleatorio(bloco),                                                // 
                     Endereço = i * bloco                                                             //  Criação das Memoria RAM e Cache vazias
                 });                                                                                  //
             }                                                                                        //
