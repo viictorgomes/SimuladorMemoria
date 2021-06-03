@@ -336,8 +336,6 @@
             this.cb_Tecnica.FormattingEnabled = true;
             this.cb_Tecnica.ItemHeight = 23;
             this.cb_Tecnica.Items.AddRange(new object[] {
-            "Direta",
-            "Associativa",
             "Associativa Conjunto"});
             this.cb_Tecnica.Location = new System.Drawing.Point(545, 8);
             this.cb_Tecnica.Name = "cb_Tecnica";
@@ -345,7 +343,6 @@
             this.cb_Tecnica.Style = MetroFramework.MetroColorStyle.Red;
             this.cb_Tecnica.TabIndex = 4;
             this.cb_Tecnica.UseSelectable = true;
-            this.cb_Tecnica.SelectedIndexChanged += new System.EventHandler(this.Tecnica_Select);
             // 
             // txtbox_Cache
             // 

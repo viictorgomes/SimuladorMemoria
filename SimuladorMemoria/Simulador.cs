@@ -27,136 +27,28 @@ namespace SimuladorMemoria
 
         private void Simulador_Load(object sender, EventArgs e)
         {
-            // seleciona os valores iniciais dos combo box
-            txtbox_RAM.Text = "1024";
-            txtbox_Bloco.Text = "128";
+            // valores de input do caso de teste
+            // blocos a carregar: 3, 11, 19, 3, 27, 11, 35, 9, 11
+            txtbox_RAM.Text = "2048";
+            txtbox_Bloco.Text = "32";
+            txtbox_Cache.Text = "32";
+            txtbox_nPos.Text = "4";
 
             cb_RAM.SelectedIndex = 0;
             cb_Bloco.SelectedIndex = 0;
 
-            cb_Tecnica.SelectedIndex = 2;
+            cb_Tecnica.SelectedIndex = 0;
             cb_Algoritmo.SelectedIndex = 0;
 
             txtbox_RAM.Focus();
         }
-
         #endregion
 
-        #region --- Tecnicas ---
-        private void TecnicaDireta(Cache bloco, int linha)
-        {
-            //insere o bloco na linha correspondente
-            MemoriaCache[linha] = bloco;
-            dgv_Cache.DataSource = null;
-            dgv_Cache.DataSource = MemoriaCache;
-            dgv_Cache.Focus();
-            dgv_Cache.Rows[linha].Selected = true;
-        }
-
-        private void TecnicaAssociativa(Cache bloco, string algoritmo)
-        {
-            int qtdCache = Convert.ToInt32(txtbox_Cache.Text);
-            int linhasCheias = 0;
-            string menor = "";
-            switch (algoritmo)
-            {
-                case Algoritmo.LRU: { menor = MemoriaCache[0].HoraUsada.ToString(); } break;
-                case Algoritmo.LFU: { menor = MemoriaCache[0].Contador.ToString(); } break;
-                case Algoritmo.FIFO: { menor = MemoriaCache[0].HoraCarregada.ToString(); } break;
-            }
-            int indexMenor = 0;
-            var celulasVazias = new List<int>();
-            var equalCount = new List<int>();
-            var random = new Random();
-            int linhaSelecionada = 0;
-
-            //verifica todas as linhas que estão vazias, seleciona os menores valores e seus indices
-            for (int i = 0; i < qtdCache; i++)
-            {
-                if (MemoriaCache[i].Tag != null)
-                {
-                    switch (algoritmo)
-                    {
-                        case Algoritmo.LRU:
-                            {
-                                if (MemoriaCache[i].HoraUsada < Convert.ToDateTime(menor))
-                                {
-                                    menor = MemoriaCache[i].HoraUsada.ToString();
-                                    indexMenor = i;
-                                }
-                            }
-                            break;
-                        case Algoritmo.LFU:
-                            {
-                                if (MemoriaCache[i].Contador < Convert.ToInt32(menor))
-                                {
-                                    equalCount.Clear();
-                                    equalCount.Add(i);
-                                    menor = MemoriaCache[i].Contador.ToString();
-                                    indexMenor = i;
-                                }
-                                else if (MemoriaCache[i].Contador == Convert.ToInt32(menor))
-                                {
-                                    equalCount.Add(i);
-                                }
-                            }
-                            break;
-                        case Algoritmo.FIFO:
-                            {
-                                if (MemoriaCache[i].HoraCarregada < Convert.ToDateTime(menor))
-                                {
-                                    menor = MemoriaCache[i].HoraCarregada.ToString();
-                                    indexMenor = i;
-                                }
-                            }
-                            break;
-                    }
-                    linhasCheias++;
-                }
-                else
-                {
-                    celulasVazias.Add(i);
-                }
-            }
-
-            if (linhasCheias < qtdCache)
-            {
-                //se ainda tiver linha vazia, insere o bloco em uma das linhas vazias
-                MemoriaCache[celulasVazias[0]] = bloco;
-                linhaSelecionada = celulasVazias[0];
-            }
-            else
-            {
-                //se não tiver linha vazia, substitui o bloco com menor indice, caso LFU, substitui em qualquer um que tiver o contador com menor valor
-                switch (algoritmo)
-                {
-                    case Algoritmo.LFU:
-                        {
-                            int line = equalCount[random.Next(equalCount.Count)];
-                            MemoriaCache[line] = bloco;
-                            linhaSelecionada = line;
-                        }
-                        break;
-                    default:
-                        {
-                            MemoriaCache[indexMenor] = bloco;
-                            linhaSelecionada = indexMenor;
-                        }
-                        break;
-                }
-
-            }
-            //atualiza o grid da memoria cache
-            dgv_Cache.DataSource = null;
-            dgv_Cache.DataSource = MemoriaCache;
-            dgv_Cache.Focus();
-            dgv_Cache.Rows[linhaSelecionada].Selected = true;
-        }
-
+        #region --- Tecnica ---
         private void TecnicaAssociativaConjuntoNPos(Cache bloco, string algoritmo, int nPos)
         {
             var quantidadeConjuntos = Convert.ToInt32(txtbox_Cache.Text) / nPos;
-            int conjuntoDestino = Convert.ToInt32(bloco.Tag) % quantidadeConjuntos;
+            int conjuntoDestino = Convert.ToInt32(bloco.Bloco) % quantidadeConjuntos; // descobrir o conjunto destino, bloco % quantidade de conjuntos
 
             int linhaSelecionada = 0;
 
@@ -164,34 +56,36 @@ namespace SimuladorMemoria
 
             List<int> blocosVazios = new List<int>();
 
-            bool Adicionado = false;
-            for (int j = 0; j < nPos; j++) // Passar por cada elemento de 1 conjunto de N elementos(nPos)
+            bool Adicionado = false; // Utilizado posteriormente para saber se um conjunto está cheio ou não, para determinar se é necessário o uso de algoritmo de substituição
+
+            for (int j = 0; j < nPos; j++) // Passar por cada elemento de 1 conjunto de nPos elementos
             {
                 int indexConjuntoDestino = (conjuntoDestino * nPos); // Obter o indice em que o conjunto começa
-                int indiceDoElementoNoConjunto = indexConjuntoDestino + j; // Indice do elemento dentro do conjunto
+                int indiceDoBlocoNoConjunto = indexConjuntoDestino + j; // Indice do bloco dentro do conjunto
 
-                if (indiceDoElementoNoConjunto > MemoriaCache.Count)
+                if (indiceDoBlocoNoConjunto > MemoriaCache.Count)
                     throw new Exception("Overflow: IndiceDoElementoNoConjunto > MemoriaCache.Count");
 
-                if (string.IsNullOrEmpty(MemoriaCache[indiceDoElementoNoConjunto].Bloco)) // Se o indice do elemento dentro do conjunto estiver vazio, armazena o bloco no indice
+                if (string.IsNullOrEmpty(MemoriaCache[indiceDoBlocoNoConjunto].Dado)) // Se o indice do bloco dentro do conjunto estiver vazio, incluir este indice na lista blocosVazios
                 {
-                    blocosVazios.Add(indiceDoElementoNoConjunto);
+                    blocosVazios.Add(indiceDoBlocoNoConjunto);
                 }
 
-                cacheEmUso[indiceDoElementoNoConjunto] = MemoriaCache[indiceDoElementoNoConjunto]; // Armazena dados que estão em uso na cache do conjunto destino
+                cacheEmUso[indiceDoBlocoNoConjunto] = MemoriaCache[indiceDoBlocoNoConjunto]; // Armazena dados que estão atualmente na cache no dicionario cacheEmUso para depois
+                                                                                             // atualizar a cache com as informações contidas em cacheEmUso
             }
 
             if (blocosVazios.Count != 0)
             {
-                var blocosVaziosShuffle = blocosVazios.OrderBy(a => random.Next()).ToList();    // Cria uma nova lista e popula essa lista com os elementos de blocoVazios de forma aleatoria
-                int indiceAleatorioDoElementoNoConjunto = blocosVaziosShuffle.First();
+                var blocosVaziosShuffle = blocosVazios.OrderBy(a => random.Next()).ToList(); // Cria uma nova lista e popula essa lista com os elementos de blocoVazios de forma aleatoria
+                int indiceAleatorioDoBlocoNoConjunto = blocosVaziosShuffle.First();         // após gerado a lista acima, obter o indice do primeiro elemento da lista
 
-                MemoriaCache[indiceAleatorioDoElementoNoConjunto] = bloco;
-                linhaSelecionada = indiceAleatorioDoElementoNoConjunto;
+                MemoriaCache[indiceAleatorioDoBlocoNoConjunto] = bloco;  // Armazena o bloco desejado no indice acima
+                linhaSelecionada = indiceAleatorioDoBlocoNoConjunto;
 
                 Adicionado = true; // Se o bloco for armazenado, não há necessidade de algoritmo de substituição
 
-                blocosVazios.Remove(indiceAleatorioDoElementoNoConjunto); // Remover indice do bloco vazio utilizado, para este não estar mais incluído nos blocos vazios nas proximas buscas
+                blocosVazios.Remove(indiceAleatorioDoBlocoNoConjunto); // Remover indice do bloco vazio utilizado, para este não estar mais incluído nos blocos vazios nas proximas buscas
             }
 
             if (!Adicionado) // Se o bloco não tiver sido armazenado anteriormente, o conjunto nao possui indices vazios, então há necessidade de algoritmo de substituição
@@ -234,17 +128,16 @@ namespace SimuladorMemoria
         private bool Valida()
         {
             //vericia se possui campo vazio
-            if (String.IsNullOrEmpty(txtbox_RAM.Text.ToString()) || String.IsNullOrEmpty(txtbox_Bloco.Text.ToString()) || String.IsNullOrEmpty(txtbox_Cache.Text.ToString()))
-            {
-                MetroMessageBox.Show(this, "É necessário preencher todos os campos corretamente.", "Valores inválidos!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            if (String.IsNullOrEmpty(txtbox_RAM.Text.ToString()) || String.IsNullOrEmpty(txtbox_Bloco.Text.ToString()) || String.IsNullOrEmpty(txtbox_Cache.Text.ToString()) ||
+                !txtbox_RAM.Text.ToString().All(char.IsDigit) || !txtbox_Bloco.Text.ToString().All(char.IsDigit) || !txtbox_Cache.Text.ToString().All(char.IsDigit)){
+                
+                MetroMessageBox.Show(this, "É necessário preenchimento de todos os campos com valores numéricos não negativos", "Valores inválidos!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             //pega o valor em bytes da ram e bloco
-            int indexRam = cb_RAM.SelectedIndex;
-            double ram = indexRam == 0 ? Convert.ToInt32(txtbox_RAM.Text) : Convert.ToInt32(txtbox_RAM.Text) * Math.Pow(2, (indexRam * 10));
-            int indexBloco = cb_Bloco.SelectedIndex;
-            double bloco = indexBloco == 0 ? Convert.ToInt32(txtbox_Bloco.Text) : Convert.ToInt32(txtbox_Bloco.Text) * Math.Pow(2, (indexBloco * 10));
+            double ram = Convert.ToInt32(txtbox_RAM.Text);
+            double bloco = Convert.ToInt32(txtbox_Bloco.Text);
 
             //verifica se o bloco é maior que a ram
             if (bloco > ram)
@@ -254,22 +147,19 @@ namespace SimuladorMemoria
                 return false;
             }
 
-            if (GetTecnica() == Tecnica.AssociativaConjuntoNPos)
-            {
-                string nInput = txtbox_nPos.Text;
+            string nPos = txtbox_nPos.Text;
 
-                if (!nInput.All(char.IsDigit) || !IsPowerOfTwo(Convert.ToInt32(nInput)))
-                {
-                    MetroMessageBox.Show(this, "O valor de N Pos precisa ser uma potência de 2", "Impossível realizar a simulação", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    txtbox_nPos.Focus();
-                    return false;
-                }
+            if (!nPos.All(char.IsDigit) || !PotenciaDe2(Convert.ToInt32(nPos)))
+            {
+                MetroMessageBox.Show(this, "O valor de N Pos precisa ser uma potência de 2", "Impossível realizar a simulação", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtbox_nPos.Focus();
+                return false;
             }
 
             return true;
         }
 
-        private bool IsPowerOfTwo(int x)
+        private bool PotenciaDe2(int x)
         {
             return (x != 0) && (x & (x - 1)) == 0;
         }
@@ -300,11 +190,10 @@ namespace SimuladorMemoria
             return result;
         }
 
-        // Metodo para obter um indice de dado em uma gridview a partir da tag de um bloco
-        private int ObterIndicePorTag(int tag, DataGridView dgv)
+        private int ObterIndicePorBloco(int bloco, DataGridView dgv)
         {
             return (dgv.Rows.Cast<DataGridViewRow>()
-                                   .Where(r => Convert.ToInt32(r.Cells[0].Value) == tag)
+                                   .Where(r => Convert.ToInt32(r.Cells[0].Value) == bloco)
                                    .Select(r => r.Index)).First();
         }
 
@@ -329,50 +218,43 @@ namespace SimuladorMemoria
             dgv_Cache.Columns[5].Visible = algoritmo == Algoritmo.LRU;
             dgv_Cache.Columns[6].Visible = algoritmo == Algoritmo.LFU;
 
-            if (tecnica != Tecnica.AssociativaConjuntoNPos)
+            switch (algoritmo)
             {
-                switch (algoritmo)
-                {
-                    case Algoritmo.LRU:
-                        dgv_Cache.Columns[1].Width = 210;
-                        break;
-                    case Algoritmo.LFU:
-                        dgv_Cache.Columns[1].Width = 245;
-                        break;
-                    case Algoritmo.FIFO:
-                        dgv_Cache.Columns[1].Width = 190;
-                        break;
-                }
+                case Algoritmo.LRU:
+                    dgv_Cache.Columns[1].Width = 200;
+                    break;
+                case Algoritmo.LFU:
+                    dgv_Cache.Columns[1].Width = 230;
+                    break;
+                case Algoritmo.FIFO:
+                    dgv_Cache.Columns[1].Width = 175;
+                    break;
             }
-            else
+
+            int linha = 0;
+            bool colorir = false;
+            foreach (DataGridViewRow row in dgv_Cache.Rows)
             {
-                dgv_Cache.Columns[1].Width = 200;
+                int nPos = Convert.ToInt32(txtbox_nPos.Text);
 
-                int linha = 0;
-                bool colorir = false;
-                foreach (DataGridViewRow row in dgv_Cache.Rows)
+                if (linha % nPos == 0) // Alterar a cor para iniciar um conjunto
                 {
-                    int nPos = Convert.ToInt32(txtbox_nPos.Text);
-
-                    if (linha % nPos == 0) // Alterar a cor para iniciar um conjunto
-                    {
-                        colorir = !colorir;
-                    }
-
-                    if (colorir)
-                        row.DefaultCellStyle.BackColor = Color.LightGray;
-                    else
-                        row.DefaultCellStyle.BackColor = Color.White;
-
-                    linha += 1;
+                    colorir = !colorir;
                 }
+
+                if (colorir)
+                    row.DefaultCellStyle.BackColor = Color.LightGray;
+                else
+                    row.DefaultCellStyle.BackColor = Color.White;
+
+                linha += 1;
             }
         }
 
         private bool CachePossuiDado(Cache cache)
         {
-            //Verifica se Memoria Cache já possui o dado recebido pelo parametro(com base na tag), e caso positivo, altera o contador e hora usada
-            var dadoJaExistenteNaCache = MemoriaCache.Where(d => d.Tag == cache.Tag).FirstOrDefault();
+            //Verifica se Memoria Cache já possui o dado recebido pelo parametro(com base no bloco), e caso positivo, altera o contador e hora usada
+            var dadoJaExistenteNaCache = MemoriaCache.Where(d => d.Bloco == cache.Bloco).FirstOrDefault();
 
             if (dadoJaExistenteNaCache != null) // Se encontrar o dado recebido por parametro, atualizar o bloco e selecionar a linha do bloco
             {
@@ -382,45 +264,30 @@ namespace SimuladorMemoria
                 dgv_Cache.DataSource = MemoriaCache;
                 dgv_Cache.Focus();
 
-                PropriedadeGrid(GetAlgoritmo(), GetTecnica());
+                PropriedadeGrid(ObterAlgoritmo());
 
-                dgv_Cache.Rows[ObterIndicePorTag(Convert.ToInt32(dadoJaExistenteNaCache.Tag), dgv_Cache)].Selected = true;
+                dgv_Cache.Rows[ObterIndicePorBloco(Convert.ToInt32(dadoJaExistenteNaCache.Bloco), dgv_Cache)].Selected = true;
                 return true;
             }
 
-            PropriedadeGrid(GetAlgoritmo(), GetTecnica());
+            PropriedadeGrid(ObterAlgoritmo());
 
             return false;
         }
 
-        private string GetAlgoritmo()
+        private string ObterAlgoritmo()
         {
             //retorna qual o algoritmo de substituição está sendo usado
             string algoritmo = "";
-            if (cb_Tecnica.SelectedIndex != 0)
+
+            switch (cb_Algoritmo.SelectedIndex)
             {
-                switch (cb_Algoritmo.SelectedIndex)
-                {
-                    case 0: { algoritmo = Algoritmo.LRU; } break;
-                    case 1: { algoritmo = Algoritmo.LFU; } break;
-                    case 2: { algoritmo = Algoritmo.FIFO; } break;
-                }
+                case 0: { algoritmo = Algoritmo.LRU; } break;
+                case 1: { algoritmo = Algoritmo.LFU; } break;
+                case 2: { algoritmo = Algoritmo.FIFO; } break;
             }
+
             return algoritmo;
-        }
-
-        private int GetTecnica()
-        {
-            //retorna qual tecnica está sendo usada
-            int tecnica = 0;
-
-            switch (cb_Tecnica.SelectedIndex)
-            {
-                case 0: { tecnica = Tecnica.Direta; } break;
-                case 1: { tecnica = Tecnica.Associativa; } break;
-                case 2: { tecnica = Tecnica.AssociativaConjuntoNPos; } break;
-            }
-            return tecnica;
         }
 
         private void selecionarLinhaRAM(int linha)
@@ -444,30 +311,29 @@ namespace SimuladorMemoria
 
             int bloco = Convert.ToInt32(txtbox_Bloco.Text);
             int ram = Convert.ToInt32(txtbox_RAM.Text);
-            int index = cb_RAM.SelectedIndex;
 
-            double qtdRAM = index == 0 ? (ram / bloco) : (ram * Math.Pow(2, (index * 10)) / bloco);  // Conversão das entradas de dados (Bytes/KBytes..)
+            double qtdRAM = ram / bloco;  // Conversão das entradas de dados (Bytes/KBytes..)
             int qtdCache = Convert.ToInt32(txtbox_Cache.Text);
 
-            for (int i = 0; i < qtdRAM; i++)                                                         //
-            {                                                                                        //
-                MemoriaRAM.Add(new RAM()                                                             //  
-                {                                                                                    //
-                    Bloco = i,                                                                       //
-                    Dado = GerarDadoAleatorio(bloco),                                                // 
-                    Endereço = i * bloco                                                             //  Criação das Memoria RAM e Cache vazias
-                });                                                                                  //
-            }                                                                                        //
-                                                                                                     //
-            for (int i = 0; i < qtdCache; i++)                                                       //
-            {                                                                                        //
-                MemoriaCache.Add(new Cache());                                                       //
-            }                                                                                        //
+            for (int i = 0; i < qtdRAM; i++)             //
+            {                                            //
+                MemoriaRAM.Add(new RAM()                 //  
+                {                                        //
+                    Bloco = i,                           //
+                    Dado = GerarDadoAleatorio(bloco),    // 
+                    Endereço = i * bloco                 //  Criação das Memoria RAM e Cache vazias
+                });                                      //
+            }                                            //
+                                                         //
+            for (int i = 0; i < qtdCache; i++)           //
+            {                                            //
+                MemoriaCache.Add(new Cache());           //
+            }                                            //
 
             dgv_RAM.DataSource = MemoriaRAM;
             dgv_Cache.DataSource = MemoriaCache;
 
-            PropriedadeGrid(GetAlgoritmo(), GetTecnica());     // Aplicar customização dos datagridview's de acordo com tipo de algoritmo ou técnica
+            PropriedadeGrid(ObterAlgoritmo());     // Aplicar customização dos datagridview's de acordo com tipo de algoritmo ou técnica
 
             txtbox_Acessar.Focus();
 
@@ -481,8 +347,8 @@ namespace SimuladorMemoria
 
         private void Carregar_Click(object sender, EventArgs e)
         {
-            // verifica se possui bloco a ser carregado 
-            if (txtbox_Acessar.Text == null || txtbox_Acessar.Text == "")
+            // validação do bloco a ser carregado
+            if (String.IsNullOrEmpty(txtbox_Acessar.Text))
             {
                 MetroMessageBox.Show(this, "Não existem blocos para serem carregados", "Impossível carregar o(s) bloco(s)", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtbox_RAM.Focus();
@@ -521,7 +387,6 @@ namespace SimuladorMemoria
 
                 var msgStr = sb.ToString();
                 var msg = msgStr.Substring(0, msgStr.Length - 1);
-                //MessageBox.Show(final);
 
                 MetroMessageBox.Show(this, msg, $"Tentativa de carregar bloco{plural} não existente{plural}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtbox_RAM.Focus();
@@ -567,15 +432,15 @@ namespace SimuladorMemoria
                 return;
             }
 
-            var tag = Blocos[dgv_Blocos.CurrentCell.RowIndex].ToString();
+            var bloco = Blocos[dgv_Blocos.CurrentCell.RowIndex].ToString();
 
-            Blocos.Remove(tag);
+            Blocos.Remove(bloco);
 
             var blocos = (from i in Blocos select new { Value = i }).ToArray();
             dgv_Blocos.DataSource = null;
             dgv_Blocos.DataSource = blocos;
 
-            dgv_RAM.Rows[ObterIndicePorTag(Convert.ToInt32(tag), dgv_RAM)].Selected = true;
+            dgv_RAM.Rows[ObterIndicePorBloco(Convert.ToInt32(bloco), dgv_RAM)].Selected = true;
 
             var temp = new RAM()
             {
@@ -586,8 +451,8 @@ namespace SimuladorMemoria
 
             var cache = new Cache()
             {
-                Tag = temp.Bloco,
-                Bloco = temp.Dado,
+                Bloco = temp.Bloco,
+                Dado = temp.Dado,
                 HoraCarregada = DateTime.Now,
                 HoraUsada = DateTime.Now,
                 Contador = 1
@@ -595,7 +460,7 @@ namespace SimuladorMemoria
 
             // Histórico de acessos
             StringBuilder str = new StringBuilder();
-            str.Append($" - {tag}{label_Historico.Text}");
+            str.Append($" - {bloco}{label_Historico.Text}");
             label_Historico.Text = str.ToString();
 
             // Verifica se o bloco a ser carergado já está armazenado na cache
@@ -612,64 +477,16 @@ namespace SimuladorMemoria
                 Notificar("MISS");
             }
 
-            switch (cb_Tecnica.SelectedIndex)
-            {
-                case Tecnica.Direta:
-                    {
-                        string algoritmo = GetAlgoritmo();
-                        int tecnica = Tecnica.Direta;
+            
+            string algoritmo = ObterAlgoritmo();
+            int tecnica = Tecnica.AssociativaConjuntoNPos;
 
-                        int linha = temp.Bloco % Convert.ToInt32(txtbox_Cache.Text);
-                        TecnicaDireta(cache, linha);
-                        PropriedadeGrid(algoritmo, tecnica);
-                    }
-                    break;
-                case Tecnica.Associativa:
-                    {
-                        string algoritmo = GetAlgoritmo();
-                        int tecnica = Tecnica.Associativa;
+            int nPos = Convert.ToInt32(txtbox_nPos.Text);
 
-                        TecnicaAssociativa(cache, algoritmo);
-                        PropriedadeGrid(algoritmo, tecnica);
-                    }
-                    break;
-                case Tecnica.AssociativaConjuntoNPos:
-                    {
-                        string algoritmo = GetAlgoritmo();
-                        int tecnica = Tecnica.AssociativaConjuntoNPos;
-
-                        int nPos = Convert.ToInt32(txtbox_nPos.Text);
-
-                        TecnicaAssociativaConjuntoNPos(cache, algoritmo, nPos);
-                        PropriedadeGrid(algoritmo, tecnica);
-                    }
-                    break;
-            }
+            TecnicaAssociativaConjuntoNPos(cache, algoritmo, nPos);
+            PropriedadeGrid(algoritmo, tecnica);
 
             dgv_Blocos.Focus();
-        }
-
-        private void Tecnica_Select(object sender, EventArgs e)
-        {
-            if (cb_Tecnica.SelectedIndex == Tecnica.Direta)
-            {
-                cb_Algoritmo.Enabled = false;
-            }
-            else
-            {
-                cb_Algoritmo.Enabled = true;
-            }
-
-            if (cb_Tecnica.SelectedIndex == Tecnica.AssociativaConjuntoNPos)
-            {
-                txtbox_nPos.Visible = true;
-                lbl_nPos.Visible = true;
-            }
-            else
-            {
-                txtbox_nPos.Visible = false;
-                lbl_nPos.Visible = false;
-            }
         }
 
         private void Limpar_Click(object sender, EventArgs e)
@@ -749,6 +566,5 @@ namespace SimuladorMemoria
                 txtbox_nPos.Text = "N";
         }
         #endregion
-
     }
 }

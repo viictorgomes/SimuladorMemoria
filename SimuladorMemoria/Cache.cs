@@ -8,8 +8,8 @@ namespace SimuladorMemoria
 {
     class Cache
     {
-        public int? Tag { get; set; }
-        public string Bloco { get; set; }
+        public int? Bloco { get; set; }
+        public string Dado { get; set; }
         public DateTime HoraCarregada { get; set; }
         public DateTime HoraUsada { get; set; }
         public string HoraCarregadaFormatted { get { return HoraCarregada.ToString("HH:mm:ss"); } }
