@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MetroFramework.Forms;
 using MetroFramework;
+using System.Text.RegularExpressions;
 
 namespace SimuladorMemoria
 {
@@ -27,13 +28,6 @@ namespace SimuladorMemoria
 
         private void Simulador_Load(object sender, EventArgs e)
         {
-            // valores de input do caso de teste
-            // blocos a carregar: 3, 11, 19, 3, 27, 11, 35, 9, 11
-            txtbox_RAM.Text = "2048";
-            txtbox_Bloco.Text = "32";
-            txtbox_Cache.Text = "32";
-            txtbox_nPos.Text = "4";
-
             cb_RAM.SelectedIndex = 0;
             cb_Bloco.SelectedIndex = 0;
 
@@ -129,8 +123,9 @@ namespace SimuladorMemoria
         {
             //vericia se possui campo vazio
             if (String.IsNullOrEmpty(txtbox_RAM.Text.ToString()) || String.IsNullOrEmpty(txtbox_Bloco.Text.ToString()) || String.IsNullOrEmpty(txtbox_Cache.Text.ToString()) ||
-                !txtbox_RAM.Text.ToString().All(char.IsDigit) || !txtbox_Bloco.Text.ToString().All(char.IsDigit) || !txtbox_Cache.Text.ToString().All(char.IsDigit)){
-                
+                !txtbox_RAM.Text.ToString().All(char.IsDigit) || !txtbox_Bloco.Text.ToString().All(char.IsDigit) || !txtbox_Cache.Text.ToString().All(char.IsDigit))
+            {
+
                 MetroMessageBox.Show(this, "É necessário preenchimento de todos os campos com valores numéricos não negativos", "Valores inválidos!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
@@ -290,7 +285,7 @@ namespace SimuladorMemoria
             return algoritmo;
         }
 
-        private void selecionarLinhaRAM(int linha)
+        private void SelecionarLinhaRAM(int linha)
         {
             int linhaParaSelecionar = 0;
 
@@ -299,6 +294,90 @@ namespace SimuladorMemoria
                 linhaParaSelecionar = linha;
 
                 dgv_RAM.Rows[linhaParaSelecionar].Selected = true;
+            }
+        }
+
+        // ---------- Não permitir inserir valores inválidos nas inputs ----------
+
+        private void txtbox_nPos_Click(object sender, EventArgs e)
+        {
+            if (txtbox_nPos.Text == "N")
+                txtbox_nPos.Text = "";
+        }
+
+        private void txtbox_nPos_Leave(object sender, EventArgs e)
+        {
+            if (txtbox_nPos.Text == "")
+                txtbox_nPos.Text = "N";
+        }
+
+        private void txtbox_RAM_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (char.IsDigit(e.KeyChar) || e.KeyChar == (char)8)
+            {
+                e.Handled = false;
+            }
+            else
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void txtbox_Bloco_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (char.IsDigit(e.KeyChar) || e.KeyChar == (char)8)
+            {
+                e.Handled = false;
+            }
+            else
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void txtbox_Cache_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (char.IsDigit(e.KeyChar) || e.KeyChar == (char)8)
+            {
+                e.Handled = false;
+            }
+            else
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void txtbox_nPos_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (char.IsDigit(e.KeyChar) || e.KeyChar == (char)8)
+            {
+                e.Handled = false;
+            }
+            else
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void txtbox_Acessar_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtbox_Acessar.Text))
+            {
+                if (!char.IsDigit(e.KeyChar))
+                {
+                    e.Handled = true;
+                }
+            }
+            else
+            {
+                if (char.IsDigit(e.KeyChar) || e.KeyChar == ',' || e.KeyChar == (char)8)
+                {
+                    e.Handled = false;
+                }
+                else
+                {
+                    e.Handled = true;
+                }
             }
         }
         #endregion
@@ -401,7 +480,7 @@ namespace SimuladorMemoria
             txtbox_Acessar.Text = null;
 
             if (blocos.Length > 0)
-                selecionarLinhaRAM(Convert.ToInt32(blocos.FirstOrDefault().Value));
+                SelecionarLinhaRAM(Convert.ToInt32(blocos.FirstOrDefault().Value));
         }
 
         private void btn_CarregarTodos_Click(object sender, EventArgs e)
@@ -477,9 +556,7 @@ namespace SimuladorMemoria
                 Notificar("MISS");
             }
 
-            
             string algoritmo = ObterAlgoritmo();
-            int tecnica = Tecnica.AssociativaConjuntoNPos;
 
             int nPos = Convert.ToInt32(txtbox_nPos.Text);
 
@@ -505,7 +582,7 @@ namespace SimuladorMemoria
 
         private void dgv_Blocos_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            selecionarLinhaRAM(Convert.ToInt32(dgv_Blocos.Rows[e.RowIndex].Cells[0].Value));
+            SelecionarLinhaRAM(Convert.ToInt32(dgv_Blocos.Rows[e.RowIndex].Cells[0].Value));
         }
 
         private void btn_LimparBlocos_Click(object sender, EventArgs e)
@@ -552,18 +629,6 @@ namespace SimuladorMemoria
         {
             label_Check.Text = "";
             t_check.Stop();
-        }
-
-        private void txtbox_nPos_Click(object sender, EventArgs e)
-        {
-            if (txtbox_nPos.Text == "N")
-                txtbox_nPos.Text = "";
-        }
-
-        private void txtbox_nPos_Leave(object sender, EventArgs e)
-        {
-            if (txtbox_nPos.Text == "")
-                txtbox_nPos.Text = "N";
         }
         #endregion
     }

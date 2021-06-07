@@ -254,6 +254,7 @@
             this.txtbox_nPos.WaterMarkColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
             this.txtbox_nPos.WaterMarkFont = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Pixel);
             this.txtbox_nPos.Click += new System.EventHandler(this.txtbox_nPos_Click);
+            this.txtbox_nPos.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtbox_nPos_KeyPress);
             this.txtbox_nPos.Leave += new System.EventHandler(this.txtbox_nPos_Leave);
             // 
             // lbl_Linhas
@@ -297,6 +298,7 @@
             this.txtbox_Bloco.UseSelectable = true;
             this.txtbox_Bloco.WaterMarkColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
             this.txtbox_Bloco.WaterMarkFont = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Pixel);
+            this.txtbox_Bloco.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtbox_Bloco_KeyPress);
             // 
             // txtbox_RAM
             // 
@@ -329,6 +331,7 @@
             this.txtbox_RAM.UseSelectable = true;
             this.txtbox_RAM.WaterMarkColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
             this.txtbox_RAM.WaterMarkFont = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Pixel);
+            this.txtbox_RAM.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtbox_RAM_KeyPress);
             // 
             // cb_Tecnica
             // 
@@ -375,6 +378,7 @@
             this.txtbox_Cache.UseSelectable = true;
             this.txtbox_Cache.WaterMarkColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
             this.txtbox_Cache.WaterMarkFont = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Pixel);
+            this.txtbox_Cache.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtbox_Cache_KeyPress);
             // 
             // cb_Algoritmo
             // 
@@ -484,6 +488,7 @@
             this.txtbox_Acessar.UseSelectable = true;
             this.txtbox_Acessar.WaterMarkColor = System.Drawing.Color.FromArgb(((int)(((byte)(109)))), ((int)(((byte)(109)))), ((int)(((byte)(109)))));
             this.txtbox_Acessar.WaterMarkFont = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Pixel);
+            this.txtbox_Acessar.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtbox_Acessar_KeyPress);
             // 
             // labelAcessar
             // 
