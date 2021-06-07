@@ -197,7 +197,7 @@ namespace SimuladorMemoria
                                    .Select(r => r.Index)).First();
         }
 
-        private void PropriedadeGrid(string algoritmo = "", int tecnica = 0)
+        private void PropriedadeGrid(string algoritmo = "")
         {
             //Método feito para realizar alinhamento e customização das colunas
             //seleciona o tamanho e quais colunas a serem apresentadas de acordo com a tecnica e algoritmo
@@ -330,7 +330,7 @@ namespace SimuladorMemoria
                 MemoriaCache.Add(new Cache());           //
             }                                            //
 
-            dgv_RAM.DataSource = MemoriaRAM;
+            dgv_RAM.DataSource = MemoriaRAM;        // popular datagridviews
             dgv_Cache.DataSource = MemoriaCache;
 
             PropriedadeGrid(ObterAlgoritmo());     // Aplicar customização dos datagridview's de acordo com tipo de algoritmo ou técnica
@@ -484,7 +484,7 @@ namespace SimuladorMemoria
             int nPos = Convert.ToInt32(txtbox_nPos.Text);
 
             TecnicaAssociativaConjuntoNPos(cache, algoritmo, nPos);
-            PropriedadeGrid(algoritmo, tecnica);
+            PropriedadeGrid(algoritmo);
 
             dgv_Blocos.Focus();
         }

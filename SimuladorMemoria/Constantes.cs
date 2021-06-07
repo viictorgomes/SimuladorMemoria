@@ -10,8 +10,6 @@ namespace SimuladorMemoria
     }
     public static class Tecnica
     {
-        public const int Direta = 0;
-        public const int Associativa = 1;
         public const int AssociativaConjuntoNPos = 2;
     }
 }
