@@ -28,10 +28,6 @@ namespace SimuladorMemoria
 
         private void Simulador_Load(object sender, EventArgs e)
         {
-            cb_RAM.SelectedIndex = 0;
-            cb_Bloco.SelectedIndex = 0;
-
-            cb_Tecnica.SelectedIndex = 0;
             cb_Algoritmo.SelectedIndex = 0;
 
             txtbox_RAM.Focus();
@@ -52,10 +48,10 @@ namespace SimuladorMemoria
 
             bool Adicionado = false; // Utilizado posteriormente para saber se um conjunto está cheio ou não, para determinar se é necessário o uso de algoritmo de substituição
 
-            for (int j = 0; j < nPos; j++) // Passar por cada elemento de 1 conjunto de nPos elementos
+            for (int i = 0; i < nPos; i++) // Passar por cada elemento de 1 conjunto de nPos elementos
             {
                 int indexConjuntoDestino = (conjuntoDestino * nPos); // Obter o indice em que o conjunto começa
-                int indiceDoBlocoNoConjunto = indexConjuntoDestino + j; // Indice do bloco dentro do conjunto
+                int indiceDoBlocoNoConjunto = indexConjuntoDestino + i; // Indice do bloco dentro do conjunto
 
                 if (indiceDoBlocoNoConjunto > MemoriaCache.Count)
                     throw new Exception("Overflow: IndiceDoElementoNoConjunto > MemoriaCache.Count");
@@ -253,8 +249,10 @@ namespace SimuladorMemoria
 
             if (dadoJaExistenteNaCache != null) // Se encontrar o dado recebido por parametro, atualizar o bloco e selecionar a linha do bloco
             {
-                dadoJaExistenteNaCache.HoraUsada = DateTime.Now;
-                dadoJaExistenteNaCache.Contador++;
+                dadoJaExistenteNaCache.HoraUsada = DateTime.Now; // pra ser usado no lru
+                dadoJaExistenteNaCache.Contador++; //pra ser usado no lfu
+
+                //atualizar datagridview
                 dgv_Cache.DataSource = null;
                 dgv_Cache.DataSource = MemoriaCache;
                 dgv_Cache.Focus();
@@ -391,7 +389,7 @@ namespace SimuladorMemoria
             int bloco = Convert.ToInt32(txtbox_Bloco.Text);
             int ram = Convert.ToInt32(txtbox_RAM.Text);
 
-            double qtdRAM = ram / bloco;  // Conversão das entradas de dados (Bytes/KBytes..)
+            double qtdRAM = ram / bloco;  
             int qtdCache = Convert.ToInt32(txtbox_Cache.Text);
 
             for (int i = 0; i < qtdRAM; i++)             //
@@ -629,6 +627,31 @@ namespace SimuladorMemoria
         {
             label_Check.Text = "";
             t_check.Stop();
+        }
+
+        private void dgv_Cache_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            int linha = 0;
+            int conjunto = 0;
+
+            foreach (DataGridViewRow row in dgv_Cache.Rows)
+            {
+                int nPos = Convert.ToInt32(txtbox_nPos.Text);
+
+                var quantidadeConjuntos = Convert.ToInt32(txtbox_Cache.Text) / nPos;
+
+                if (linha != 0)
+                {
+                    conjunto = (linha / nPos);
+                }
+
+                foreach (DataGridViewCell cell in row.Cells)
+                {
+                    cell.ToolTipText = $"Linha: {linha} \nConjunto: {conjunto}";
+                }
+
+                linha++;
+            }
         }
         #endregion
     }

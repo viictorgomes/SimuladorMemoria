@@ -34,22 +34,22 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Simulador));
             this.lbl_RAM = new MetroFramework.Controls.MetroLabel();
-            this.cb_RAM = new MetroFramework.Controls.MetroComboBox();
-            this.cb_Bloco = new MetroFramework.Controls.MetroComboBox();
             this.lbl_Bloco = new MetroFramework.Controls.MetroLabel();
             this.lbl_Cache = new MetroFramework.Controls.MetroLabel();
             this.lbl_Tecnica = new MetroFramework.Controls.MetroLabel();
             this.lbl_Algoritmo = new MetroFramework.Controls.MetroLabel();
             this.btn_Simular = new MetroFramework.Controls.MetroButton();
             this.metroPanel1 = new MetroFramework.Controls.MetroPanel();
+            this.lbl_BlocoBytes = new MetroFramework.Controls.MetroLabel();
+            this.lbl_RAMBytes = new MetroFramework.Controls.MetroLabel();
             this.lbl_nPos = new MetroFramework.Controls.MetroLabel();
             this.txtbox_nPos = new MetroFramework.Controls.MetroTextBox();
             this.lbl_Linhas = new MetroFramework.Controls.MetroLabel();
             this.txtbox_Bloco = new MetroFramework.Controls.MetroTextBox();
             this.txtbox_RAM = new MetroFramework.Controls.MetroTextBox();
-            this.cb_Tecnica = new MetroFramework.Controls.MetroComboBox();
             this.txtbox_Cache = new MetroFramework.Controls.MetroTextBox();
             this.cb_Algoritmo = new MetroFramework.Controls.MetroComboBox();
+            this.metroLabel1 = new MetroFramework.Controls.MetroLabel();
             this.painel_Carregar = new MetroFramework.Controls.MetroPanel();
             this.btn_CarregarTodos = new MetroFramework.Controls.MetroButton();
             this.label_Historico = new MetroFramework.Controls.MetroLabel();
@@ -85,41 +85,6 @@
             this.lbl_RAM.TabIndex = 0;
             this.lbl_RAM.Text = "Memória RAM:";
             this.lbl_RAM.Theme = MetroFramework.MetroThemeStyle.Dark;
-            // 
-            // cb_RAM
-            // 
-            this.cb_RAM.BackColor = System.Drawing.Color.White;
-            this.cb_RAM.Enabled = false;
-            this.cb_RAM.FormattingEnabled = true;
-            this.cb_RAM.ItemHeight = 23;
-            this.cb_RAM.Items.AddRange(new object[] {
-            "Bytes",
-            "KBytes",
-            "Mbytes",
-            "GBytes"});
-            this.cb_RAM.Location = new System.Drawing.Point(286, 8);
-            this.cb_RAM.Name = "cb_RAM";
-            this.cb_RAM.Size = new System.Drawing.Size(87, 29);
-            this.cb_RAM.Style = MetroFramework.MetroColorStyle.Red;
-            this.cb_RAM.TabIndex = 1;
-            this.cb_RAM.UseSelectable = true;
-            // 
-            // cb_Bloco
-            // 
-            this.cb_Bloco.Enabled = false;
-            this.cb_Bloco.FormattingEnabled = true;
-            this.cb_Bloco.ItemHeight = 23;
-            this.cb_Bloco.Items.AddRange(new object[] {
-            "Bytes",
-            "KBytes",
-            "Mbytes",
-            "GBytes"});
-            this.cb_Bloco.Location = new System.Drawing.Point(286, 46);
-            this.cb_Bloco.Name = "cb_Bloco";
-            this.cb_Bloco.Size = new System.Drawing.Size(87, 29);
-            this.cb_Bloco.Style = MetroFramework.MetroColorStyle.Red;
-            this.cb_Bloco.TabIndex = 3;
-            this.cb_Bloco.UseSelectable = true;
             // 
             // lbl_Bloco
             // 
@@ -180,22 +145,22 @@
             // 
             this.metroPanel1.BackColor = System.Drawing.Color.Silver;
             this.metroPanel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.metroPanel1.Controls.Add(this.lbl_BlocoBytes);
+            this.metroPanel1.Controls.Add(this.lbl_RAMBytes);
             this.metroPanel1.Controls.Add(this.lbl_nPos);
             this.metroPanel1.Controls.Add(this.txtbox_nPos);
             this.metroPanel1.Controls.Add(this.lbl_Linhas);
             this.metroPanel1.Controls.Add(this.txtbox_Bloco);
             this.metroPanel1.Controls.Add(this.txtbox_RAM);
-            this.metroPanel1.Controls.Add(this.cb_Tecnica);
             this.metroPanel1.Controls.Add(this.btn_Simular);
             this.metroPanel1.Controls.Add(this.txtbox_Cache);
             this.metroPanel1.Controls.Add(this.cb_Algoritmo);
-            this.metroPanel1.Controls.Add(this.cb_RAM);
             this.metroPanel1.Controls.Add(this.lbl_Algoritmo);
             this.metroPanel1.Controls.Add(this.lbl_RAM);
             this.metroPanel1.Controls.Add(this.lbl_Cache);
             this.metroPanel1.Controls.Add(this.lbl_Bloco);
+            this.metroPanel1.Controls.Add(this.metroLabel1);
             this.metroPanel1.Controls.Add(this.lbl_Tecnica);
-            this.metroPanel1.Controls.Add(this.cb_Bloco);
             this.metroPanel1.HorizontalScrollbarBarColor = true;
             this.metroPanel1.HorizontalScrollbarHighlightOnWheel = false;
             this.metroPanel1.HorizontalScrollbarSize = 10;
@@ -208,11 +173,33 @@
             this.metroPanel1.VerticalScrollbarHighlightOnWheel = false;
             this.metroPanel1.VerticalScrollbarSize = 10;
             // 
+            // lbl_BlocoBytes
+            // 
+            this.lbl_BlocoBytes.AutoSize = true;
+            this.lbl_BlocoBytes.FontSize = MetroFramework.MetroLabelSize.Tall;
+            this.lbl_BlocoBytes.Location = new System.Drawing.Point(263, 47);
+            this.lbl_BlocoBytes.Name = "lbl_BlocoBytes";
+            this.lbl_BlocoBytes.Size = new System.Drawing.Size(51, 25);
+            this.lbl_BlocoBytes.TabIndex = 18;
+            this.lbl_BlocoBytes.Text = "Bytes";
+            this.lbl_BlocoBytes.Theme = MetroFramework.MetroThemeStyle.Dark;
+            // 
+            // lbl_RAMBytes
+            // 
+            this.lbl_RAMBytes.AutoSize = true;
+            this.lbl_RAMBytes.FontSize = MetroFramework.MetroLabelSize.Tall;
+            this.lbl_RAMBytes.Location = new System.Drawing.Point(263, 8);
+            this.lbl_RAMBytes.Name = "lbl_RAMBytes";
+            this.lbl_RAMBytes.Size = new System.Drawing.Size(51, 25);
+            this.lbl_RAMBytes.TabIndex = 17;
+            this.lbl_RAMBytes.Text = "Bytes";
+            this.lbl_RAMBytes.Theme = MetroFramework.MetroThemeStyle.Dark;
+            // 
             // lbl_nPos
             // 
             this.lbl_nPos.AutoSize = true;
             this.lbl_nPos.FontSize = MetroFramework.MetroLabelSize.Tall;
-            this.lbl_nPos.Location = new System.Drawing.Point(767, 9);
+            this.lbl_nPos.Location = new System.Drawing.Point(739, 9);
             this.lbl_nPos.Name = "lbl_nPos";
             this.lbl_nPos.Size = new System.Drawing.Size(38, 25);
             this.lbl_nPos.TabIndex = 16;
@@ -235,7 +222,7 @@
             this.txtbox_nPos.CustomButton.Visible = false;
             this.txtbox_nPos.Lines = new string[] {
         "N"};
-            this.txtbox_nPos.Location = new System.Drawing.Point(709, 11);
+            this.txtbox_nPos.Location = new System.Drawing.Point(681, 11);
             this.txtbox_nPos.MaxLength = 32767;
             this.txtbox_nPos.Name = "txtbox_nPos";
             this.txtbox_nPos.PasswordChar = '\0';
@@ -333,20 +320,6 @@
             this.txtbox_RAM.WaterMarkFont = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Pixel);
             this.txtbox_RAM.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtbox_RAM_KeyPress);
             // 
-            // cb_Tecnica
-            // 
-            this.cb_Tecnica.Enabled = false;
-            this.cb_Tecnica.FormattingEnabled = true;
-            this.cb_Tecnica.ItemHeight = 23;
-            this.cb_Tecnica.Items.AddRange(new object[] {
-            "Associativa Conjunto"});
-            this.cb_Tecnica.Location = new System.Drawing.Point(545, 8);
-            this.cb_Tecnica.Name = "cb_Tecnica";
-            this.cb_Tecnica.Size = new System.Drawing.Size(158, 29);
-            this.cb_Tecnica.Style = MetroFramework.MetroColorStyle.Red;
-            this.cb_Tecnica.TabIndex = 4;
-            this.cb_Tecnica.UseSelectable = true;
-            // 
             // txtbox_Cache
             // 
             // 
@@ -394,6 +367,17 @@
             this.cb_Algoritmo.Style = MetroFramework.MetroColorStyle.Red;
             this.cb_Algoritmo.TabIndex = 5;
             this.cb_Algoritmo.UseSelectable = true;
+            // 
+            // metroLabel1
+            // 
+            this.metroLabel1.AutoSize = true;
+            this.metroLabel1.FontSize = MetroFramework.MetroLabelSize.Tall;
+            this.metroLabel1.Location = new System.Drawing.Point(512, 8);
+            this.metroLabel1.Name = "metroLabel1";
+            this.metroLabel1.Size = new System.Drawing.Size(169, 25);
+            this.metroLabel1.TabIndex = 6;
+            this.metroLabel1.Text = "Associativa Conjunto";
+            this.metroLabel1.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
             // painel_Carregar
             // 
@@ -536,6 +520,7 @@
             this.dgv_Cache.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgv_Cache.Size = new System.Drawing.Size(389, 424);
             this.dgv_Cache.TabIndex = 13;
+            this.dgv_Cache.CellMouseEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_Cache_CellMouseEnter);
             // 
             // dgv_RAM
             // 
@@ -581,9 +566,9 @@
             // 
             // btn_Limpar
             // 
-            this.btn_Limpar.Location = new System.Drawing.Point(1090, 604);
+            this.btn_Limpar.Location = new System.Drawing.Point(1064, 604);
             this.btn_Limpar.Name = "btn_Limpar";
-            this.btn_Limpar.Size = new System.Drawing.Size(85, 51);
+            this.btn_Limpar.Size = new System.Drawing.Size(111, 51);
             this.btn_Limpar.TabIndex = 17;
             this.btn_Limpar.Text = "Limpar";
             this.btn_Limpar.Theme = MetroFramework.MetroThemeStyle.Dark;
@@ -699,8 +684,6 @@
         #endregion
 
         private MetroFramework.Controls.MetroLabel lbl_RAM;
-        private MetroFramework.Controls.MetroComboBox cb_RAM;
-        private MetroFramework.Controls.MetroComboBox cb_Bloco;
         private MetroFramework.Controls.MetroLabel lbl_Bloco;
         private MetroFramework.Controls.MetroLabel lbl_Cache;
         private MetroFramework.Controls.MetroLabel lbl_Tecnica;
@@ -719,7 +702,6 @@
         private MetroFramework.Controls.MetroLabel lbl_Linhas;
         private MetroFramework.Controls.MetroTextBox txtbox_Bloco;
         private MetroFramework.Controls.MetroTextBox txtbox_RAM;
-        private MetroFramework.Controls.MetroComboBox cb_Tecnica;
         private MetroFramework.Controls.MetroTextBox txtbox_Cache;
         private MetroFramework.Controls.MetroComboBox cb_Algoritmo;
         private System.Windows.Forms.DataGridView dgv_Blocos;
@@ -733,6 +715,9 @@
         private MetroFramework.Controls.MetroLabel lbl_nPos;
         private MetroFramework.Controls.MetroTextBox txtbox_nPos;
         private MetroFramework.Controls.MetroButton btn_LimparBlocos;
+        private MetroFramework.Controls.MetroLabel lbl_BlocoBytes;
+        private MetroFramework.Controls.MetroLabel lbl_RAMBytes;
+        private MetroFramework.Controls.MetroLabel metroLabel1;
     }
 }
 
